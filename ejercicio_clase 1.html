@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller Práctico: Creando Valor desde el Clickstream</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Fondo alusivo a datos/e-commerce */
+            background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+        pre {
+            background-color: #1f2937; /* bg-gray-800 */
+            color: #d1d5db; /* text-gray-300 */
+            padding: 1rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        h1, h2, h3 {
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto max-w-4xl p-6 sm:p-10 bg-white bg-opacity-95 rounded-xl shadow-lg my-10">
+
+        <!-- Encabezado -->
+        <div class="text-center border-b border-gray-200 pb-6 mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-indigo-700">Taller Práctico: Creando Valor desde el Clickstream</h1>
+            <p class="text-lg text-gray-600 mt-2">De los Datos Crudos a la Predicción de Compra</p>
+        </div>
+
+        <!-- Introducción y Objetivo de Negocio -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">1. El Escenario: Tu Rol como Analista de BI</h2>
+            <p class="text-base leading-relaxed">
+                ¡Felicidades! Eres el nuevo Analista de Inteligencia de Negocios en una prometedora plataforma de e-commerce. Tu primer gran proyecto es analizar el comportamiento de los usuarios en el sitio web para entender qué factores llevan a una compra.
+            </p>
+            <p class="text-base leading-relaxed mt-4">
+                La gerencia no solo quiere saber *qué* pasó, sino *qué es probable que pase*. Sin embargo, los datos están crudos. Tienes un único log con *todos* los clicks (`e-shop clothing 2008.csv`). No existe un archivo de "compras" separado.
+            </p>
+            <p class="text-base font-semibold leading-relaxed mt-4 text-indigo-600">
+                **Tu Objetivo de Negocio:**
+                <ol class="list-decimal list-inside mt-2">
+                    <li>Analizar el archivo `e-shop clothing 2008.csv` para **inferir y crear una variable objetivo** que represente una "intención de compra".</li>
+                    <li>Construir un dataset a nivel de **sesión** (no de click) a partir del log.</li>
+                    <li>Construir y evaluar un modelo que prediga la probabilidad de esta "intención de compra".</li>
+                    <li>Identificar los *impulsores clave* (key drivers) de la conversión.</li>
+                </ol>
+            </p>
+        </section>
+
+        <!-- El Dataset -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">2. Los Datos: E-Shop Clickstream 2008</h2>
+            <p class="text-base leading-relaxed">
+                Se te proveerá el archivo `e-shop clothing 2008.csv`, que contiene el detalle de cada click. La variable `order` representa la secuencia de clicks en la sesión.
+            </p>
+            
+            <h3 class="text-lg font-semibold text-gray-800 mt-6 mb-2">Descripción de las Variables (Archivo Principal)</h3>
+            <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variable</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">year</td><td class="px-6 py-4 text-sm text-gray-500">Año de la sesión.</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">month</td><td class="px-6 py-4 text-sm text-gray-500">Mes de la sesión.</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">day</td><td class="px-6 py-4 text-sm text-gray-500">Día de la sesión.</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">order</td><td class="px-6 py-4 text-sm text-gray-500">Secuencia de clicks en la sesión (ej. 1, 2, 3...).</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">country</td><td class="px-6 py-4 text-sm text-gray-500">País de origen del IP.</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">session ID</td><td class="px-6 py-4 text-sm text-gray-500">Identificador único de la sesión.</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">page 1 (main category)</td><td class="px-6 py-4 text-sm text-gray-500">Categoría principal (1=shirts, 2=trousers, 3=skirts, 4=sale).</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">page 2 (clothing model)</td><td class="px-6 py-4 text-sm text-gray-500">Código del producto/modelo visto.</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">colour</td><td class="px-6 py-4 text-sm text-gray-500">Color del producto.</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">location</td><td class="px-6 py-4 text-sm text-gray-500">Ubicación de la foto en la página.</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">model photography</td><td class="px-6 py-4 text-sm text-gray-500">Tipo de fotografía (ej. modelo o producto solo).</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">price</td><td class="px-6 py-4 text-sm text-gray-500">Precio del producto visto.</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">price 2</td><td class="px-6 py-4 text-sm text-gray-500">Binario: si el precio es > al precio promedio de la categoría.</td></tr>
+                        <tr><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">page</td><td class="px-6 py-4 text-sm text-gray-500">Número de página en el e-store (1 a 5).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Paso 1: Creación de la Variable Objetivo -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">3. Paso 1: Feature Engineering y Creación del Target</h2>
+            <p class="text-base leading-relaxed">
+                Este dataset es un log de clicks. ¡No podemos usarlo así! Está a nivel de **click**, y queremos predecir a nivel de **sesión**.
+            </p>
+            <ol class="list-decimal list-inside mt-4 space-y-2">
+                <li>
+                    <strong>Definir el Target (y):</strong>
+                    <p class="mt-1">
+                        La gerencia quiere identificar a los "buscadores de ofertas". Por lo tanto, definimos una "conversión" como una sesión que visita la página de **Ofertas (Sale)**.
+                        Investigando los datos, descubres que la categoría <code class="bg-gray-200 px-1 rounded">4</code> en la variable <code class="bg-gray-200 px-1 rounded">page 1 (main category)</code> corresponde a la página de <strong class="text-indigo-600">"sale" (Ofertas)</strong>.
+                    </p>
+                    <p class="mt-1">
+                        Tu primer reto es crear un DataFrame o una Serie que indique, para cada <code class="bg-gray-200 px-1 rounded">session ID</code>, si esa sesión <code class="bg-gray-200 px-1 rounded">Visited_Sale_Page</code> (1) o no (0).
+                    </p>
+                </li>
+                <li>
+                    <strong>Crear las Features (X) y Evitar Data Leakage:</strong>
+                    <p class="mt-1">
+                        ¡CUIDADO! Este es el paso más importante. No puedes simplemente agrupar y calcular la media de `price`, porque estarías incluyendo información de la página de ofertas, ¡lo cual es parte del evento que intentas predecir!
+                    </p>
+                    <p class="mt-1">
+                        **Instrucción:** Para construir tus features, primero debes **filtrar** tu DataFrame principal para <strong class="text-red-600">excluir todos los clicks donde `page 1 (main category)` sea 4</strong>.
+                    </p>
+                    <p class="mt-1">
+                        Sobre ese DataFrame *filtrado* (que solo contiene clicks de `page 1` en `[1, 2, 3]`), ahora sí puedes agrupar (`.groupby()`) por `session ID` y crear features agregadas.
+                    </p>
+                </li>
+                <li>
+                    <strong>Agregar a Nivel de Sesión:</strong>
+                    <p class="mt-1">¿Qué features crearás? ¡Aquí está el reto de BI! Algunas ideas para tu DataFrame agregado:</p>
+                    <ul class="list-disc list-inside ml-6">
+                        <li>`total_clicks`: El `conteo` de `order`.</li>
+                        <li>`max_price_seen`: El `max` de `price`.</li>
+                        <li>`avg_price_seen`: El `mean` de `price`.</li>
+                        <li>`countries`: El `nunique` de `country`.
+                        <li>`main_category_mode`: La `moda` (valor más frecuente) de `page 1 (main category)`.</li>
+                        <li>`distinct_products`: El `nunique` de `page 2 (clothing model)`.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Dataset Final:</strong> Tu dataset final será el `merge` de tus features agregadas (de sesiones sin clicks en "sale") y tu variable objetivo (`Visited_Sale_Page`).
+                </li>
+                 <li><strong>¡Pregunta Clave!</strong> Ya que tienes tu dataset final... ¿Cómo es la distribución de `Visited_Sale_Page`? Usa `df_sesiones['Visited_Sale_Page'].value_counts(normalize=True)`. ¿Es un problema balanceado o desbalanceado?</li>
+            </ol>
+        </section>
+
+        <!-- Paso 2: Preprocesamiento y Pipelines -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">4. Paso 2: El Pipeline de Preprocesamiento</h2>
+            <p class="text-base leading-relaxed">
+                ¡Ahora sí! Con tu DataFrame `df_sesiones` limpio y agregado, es hora de preparar el pipeline.
+            </p>
+            <p class="text-base leading-relaxed mt-4">
+                Tu nuevo dataset tendrá una mezcla de las variables que *tú creaste*.
+            </p>
+            <p class="text-base font-medium text-gray-700 mt-6">
+                Tu tarea aquí es definir correctamente qué variables son `numéricas` (ej. `total_clicks`, `avg_price_seen`) y cuáles son `categóricas` (ej. `main_category_mode`).
+            </p>
+            <p class="text-base leading-relaxed mt-2">
+                Deberás construir un `ColumnTransformer` que aplique las transformaciones correctas (Imputación + Escalado para numéricas; Imputación + OneHotEncoding para categóricas).
+            </p>
+        </section>
+
+        <!-- Paso 3: Modelado -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">5. Paso 3: "Jugando" con los Modelos</h2>
+            <p class="text-base leading-relaxed">
+                Tu tarea es construir, entrenar y evaluar al menos **cuatro** modelos diferentes para ver cuál funciona mejor "out-of-the-box" en tu dataset `df_sesiones`.
+            </p>
+            <ul class="list-disc list-inside mt-4 space-y-2">
+                <li><strong>Modelo 1 (Línea Base 1):</strong> `LogisticRegression`.</li>
+                <li><strong>Modelo 2 (Línea Base 2):</strong> `DecisionTreeClassifier`. (¡Un solo árbol para comparar!)</li>
+                <li><strong>Modelo 3 (Bagging):</strong> `RandomForestClassifier`.</li>
+                <li><strong>Modelo 4 (Boosting):</strong> `XGBClassifier` o `LGBMClassifier`.</li>
+            </ul>
+            <p class="text-base leading-relaxed mt-6">
+                Para cada uno de estos modelos, deberás crear un `Pipeline` completo que incluya tu `preprocessor` y el `model`.
+            </p>
+            <p class="text-base font-semibold text-indigo-600 leading-relaxed mt-4">
+                ¡Pista Importante! No olvides el desbalanceo de clases. Para los modelos que lo soportan (como `RandomForestClassifier` y `XGBClassifier`), investiga y usa los parámetros `class_weight='balanced'` o `scale_pos_weight`.
+            </p>
+        </section>
+
+        <!-- Paso 4: Evaluación -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">6. Paso 4: Evaluación y Selección del Modelo</h2>
+            <p class="text-base leading-relaxed">
+                Con los modelos entrenados, es hora de decidir cuál es el "mejor".
+            </p>
+            <p class="text-base font-semibold text-red-600 leading-relaxed mt-4">
+                ¡ALERTA! Como viste en el Paso 1, este es un problema **altamente desbalanceado**. Si usas solo `accuracy` (precisión), un modelo que prediga "No Compra" el 100% de las veces tendrá un accuracy altísimo y será 100% inútil.
+            </p>
+            <p class="text-base leading-relaxed mt-4">
+                Tu tarea es crear un `DataFrame` que compare tus modelos usando métricas más robustas. Debes incluir:
+            </p>
+            <ul class="list-disc list-inside mt-4 space-y-2">
+                <li>`accuracy_score` (para ver por qué no sirve)</li>
+                <li>`f1_score(y_test, y_pred, pos_label=1)`</li>
+                <li>`roc_auc_score(y_test, y_prob)`</li>
+                <li>`precision_score(y_test, y_pred, pos_label=1)`</li>
+                <li>`recall_score(y_test, y_pred, pos_label=1)`</li>
+            </ul>
+        </section>
+
+        <!-- Paso 5: Conclusión de Negocio -->
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">7. Paso 5: La Decisión de Negocio (El Entregable)</h2>
+            <p class="text-base leading-relaxed">
+                Esta es la parte más importante para un analista de BI. El mejor modelo técnico no sirve de nada si no podemos traducirlo en una acción de negocio.
+            </p>
+            <p class="text-base leading-relaxed mt-4">
+                Responde a las siguientes preguntas en tu notebook como si fuera un reporte para la Gerencia de Marketing:
+            </p>
+            <ol class="list-decimal list-inside mt-4 space-y-3 bg-indigo-50 p-6 rounded-md">
+                <li><strong>¿Qué modelo elegiste como "ganador" y por qué?</strong> (Justifica usando las métricas del Paso 4.)</li>
+                <li>
+                    <strong>¿Cuáles son los 3 factores más importantes?</strong> 
+                    (Extrae el `feature_importance_` de tu modelo ganador. Recuerda que las features serán las que *tú creaste*, como `avg_price_seen` o `total_clicks`).
+                </li>
+                <li>
+                    <strong>¿Cuál es tu recomendación de negocio?</strong> 
+                    (Basado en las 3 features más importantes. Ej. "El factor más importante es `avg_price_seen` de los productos que no son de oferta. Los usuarios que ven productos caros primero y *luego* van a ofertas convierten mejor. Recomiendo mostrar un banner de 'Ofertas' a los usuarios que naveguen en productos de precio alto...")
+                </li>
+            </ol>
+        </section>
+
+    </div>
+
+</body>
+</html>
