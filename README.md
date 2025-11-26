@@ -35,18 +35,12 @@ e-commerce-clickstream-ml
 │   └── e-shop clothing 2008.csv
 │
 ├── notebooks/
-│   └── clickstream_analysis.ipynb
+│   └── ejercicio_e_commerce.ipynb
 │
-├── src/
-│   ├── preprocessing.py
-│   ├── modeling.py
-│   ├── optuna_tuning.py
-│   └── utils.py
+├── ejercicio_clase 1.html/
 │
-├── plots/
-│   ├── metrics_barplot.png
-│   └── xgboost_vs_optuna.png
+├── poetry.lock/
+├── pyproject.tomll
 │
 ├── README.md
-└── requirements.txt
 
