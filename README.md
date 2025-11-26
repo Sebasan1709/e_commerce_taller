@@ -28,8 +28,6 @@ Predecir si un usuario visitará la página de ofertas (`page 1 = 4`), identific
 
 ## 📂 Estructura del Proyecto
 
-## 📂 Estructura del Proyecto
-
 ```text
 e-commerce-clickstream-ml
 │
