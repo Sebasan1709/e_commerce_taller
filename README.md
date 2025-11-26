@@ -1,4 +1,4 @@
-# 🛍️ Predicción de Intención de Compra a partir de Clickstream (E-Shop 2008)
+# 🛍️ Predicción de Intención de Compra a partir de Clickstream (E-Commerce 2008)
 
 Este proyecto desarrolla un proceso completo de **Machine Learning aplicado a datos de navegación (clickstream)** para predecir si una sesión de usuario visitará la página de **Ofertas (Sale)** en un e-commerce de ropa.
 
